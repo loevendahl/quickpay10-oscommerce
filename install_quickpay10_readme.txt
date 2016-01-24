@@ -79,6 +79,10 @@ copy these files and folders to your webshop
 	includes/modules/payment/quickpay_advanced.php
     includes/languages/danish/modules/payment/quickpay_advanced.php	
 	includes/languages/english/modules/payment/quickpay_advanced.php
+	includes/classes/QPConnectorCurl.php
+    includes/classes/QPConnectorFactory.php
+    includes/classes/QPConnectorInterface.php
+    includes/classes/QuickpayApi.php
 	images/icons/
 	admin/quickpay10/application_top_quickpay.php
 	admin/quickpay10/orders_actions.php
