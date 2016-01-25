@@ -88,9 +88,6 @@ copy these files and folders to your webshop
 	admin/quickpay10/orders_actions.php
 	admin/quickpay10/orders_gui_admin.php
 	admin/quickpay10/orders_js.php
-	admin/quickpay10/QPConnectorCurl.php
-	admin/quickpay10/QPConnectorFactory.php
-	admin/quickpay10/QPConnectorInterface.php
 	admin/quickpay10/quickpay10.php
 	
 
