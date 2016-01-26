@@ -34,7 +34,7 @@ $oid = MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_".sprintf('%04d', $_GET["
   $qp_pending = ($str[0]["pending"] == "true" ? " - pending ": "");
   $qp_expire = $str[0]["metadata"]["exp_month"]."-".$str[0]["metadata"]["exp_year"];
   $qp_cardhash = $str[0]["operations"][0]["type"].(strstr($str[0]["description"],'Subscription') ? " Subscription" : "");
-  
+  mail("kl@blkom.dk","call", json_encode($str[0]));
 
  if (!$str[0]["id"]) {
 	 // Request is NOT authenticated or transaction does not exist
@@ -66,20 +66,21 @@ switch ($qp_status) {
         // write status message into order to retrieve it as error message on checkout_payment
 
         $sql_data_array = array('cc_transactionid' => tep_db_input($qp_status_msg),
-            'last_modified' => 'now()');
+            'last_modified' => 'now()',
+            'orders_status_id' => MODULE_PAYMENT_QUICKPAY_ADVANCED_REJECTED_ORDER_STATUS_ID);
 
-
-        // approve order by updating status
+        // reject order by updating status
         tep_db_perform(TABLE_ORDERS, $sql_data_array, 'update', "orders_id = '" . $qp_order_id . "'");
 
 
-   /*     $sql_data_array = array('orders_id' => $qp_order_id,
+      $sql_data_array = array('orders_id' => $qp_order_id,
             'orders_status_id' => MODULE_PAYMENT_QUICKPAY_ADVANCED_REJECTED_ORDER_STATUS_ID,
             'date_added' => 'now()',
-            'customer_notified' => '0',
-            'comments' => 'QuickPay Payment rejected [message: '.$qp_operations_type.'-'. $qp_status_msg . ' - '.$qp_aq_status_msg.']');
+            'customer_notified' => '0');
+			/*,
+            'comments' => 'QuickPay Payment rejected [message: '.$qp_operations_type.'-'. $qp_status_msg . ' - '.$qp_aq_status_msg.']');*/
 
-        tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);*/
+        tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array,'update', "orders_id = '" . $qp_order_id . "'");
 
         break;
 
@@ -165,7 +166,7 @@ if($qp_type == "subscription"){
 }
 	
 	   // payment link sent by admin approved, but customer is not logged in
-   if($str[0]["link"]["reference_title"] == "admin link" && !tep_session_is_registered('customer_id')){
+   if($qp_approved && $str[0]["link"]["reference_title"] == "admin link" && !tep_session_is_registered('customer_id')){
   
 		    include(DIR_WS_LANGUAGES . $language . '/' . FILENAME_CHECKOUT_PROCESS);
 			
@@ -179,6 +180,20 @@ if($qp_type == "subscription"){
         tep_db_query("delete from " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " where customers_id = '" . (int) $cb["customers_id"]  . "'");
        	 
 		    }
+			           // write/update into order history
+	
+
+    $sql = "select * from " . TABLE_ORDERS_STATUS_HISTORY . " where orders_id = '" . $qp_order_id . "'";
+    $order_query = tep_db_query($sql);
+            $sql_data_array = array('orders_id' => $qp_order_id,
+                'orders_status_id' => $order_status_id,
+                'date_added' => 'now()',
+                'customer_notified' => '1');
+   
+ 
+
+             tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
+
 	      
 		   $email_order = STORE_NAME . "\n" . 
                  EMAIL_SEPARATOR . "\n" . 
