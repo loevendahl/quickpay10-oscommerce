@@ -34,7 +34,7 @@ $oid = MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_".sprintf('%04d', $_GET["
   $qp_pending = ($str[0]["pending"] == "true" ? " - pending ": "");
   $qp_expire = $str[0]["metadata"]["exp_month"]."-".$str[0]["metadata"]["exp_year"];
   $qp_cardhash = $str[0]["operations"][0]["type"].(strstr($str[0]["description"],'Subscription') ? " Subscription" : "");
-  mail("kl@blkom.dk","call", json_encode($str[0]));
+
 
  if (!$str[0]["id"]) {
 	 // Request is NOT authenticated or transaction does not exist

@@ -714,7 +714,7 @@ if($_POST['callquickpay'] == "go") {
 	$mode = (MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION == "Normal" ? "" : "1");
 	  	//been here before?
 	    $exists = $this->get_quickpay_order_status($order_id, $mode);
-		print_r($exists);
+	
     $qid = $exists["qid"];
 	//set to create/update mode
 	$apiorder->mode = (MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION == "Normal" ? "payments/" : "subscriptions/");
@@ -723,7 +723,7 @@ if($_POST['callquickpay'] == "go") {
       //create new quickpay order	
       $storder = $apiorder->createorder($qp_order_id, $qp_currency_code, $process_parameters);
       $qid = $storder["id"];
-	print_r($storder);
+
       }else{
        $qid = $exists["qid"];
        }
