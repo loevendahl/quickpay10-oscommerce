@@ -36,19 +36,19 @@
     <td><table border="0" width="100%" cellspacing="0" cellpadding="0">
       <tr>
         <td class="pageHeading"><?php 
-		//quickpay added start
+		//quickpay changed start
 	
 		if ($order->info['cc_type']=="iBill" || $order->info['cc_type']=="ViaBill"){
 			
 			echo STORE_NAME;
 	
 		}else{
-		//quickpay added end
+		//quickpay changed end
 		echo nl2br(STORE_NAME_ADDRESS); 
 		
-		//quickpay added start
+		//quickpay changed start
 			}
-		//quickpay added end
+		//quickpay changed end
 		?></td>
         <td class="pageHeading" align="right"><?php echo tep_image(DIR_WS_CATALOG_IMAGES . 'store_logo.png', STORE_NAME); ?></td>
       </tr>
@@ -96,14 +96,14 @@
       <tr>
         <td class="main"><strong><?php echo ENTRY_PAYMENT_METHOD; ?></strong></td>
         <td class="main"><?php
-		//quickpay added start
+		//quickpay changed start
 		//echo $order->info['payment_method'];
 			if ($order->info['cc_type']=="iBill"){
 		 echo $order->info['payment_method'].'<br>'.nl2br(DENUNCIATION);
 			}else{
 			echo $order->info['payment_method'].($order->info['cc_type']? ' ('.$order->info['cc_type'].')': '');
 			}
-		//quickpay added end
+		//quickpay changed end
 		 ?></td>
       </tr>
     </table></td>
