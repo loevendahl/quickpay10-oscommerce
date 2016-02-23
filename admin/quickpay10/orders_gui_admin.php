@@ -139,7 +139,7 @@ if($allowcapture){
 	
 		if($resttocap > 0 ){
 			echo "<br><b>".IMAGE_TRANSACTION_CAPTURE_INFO."</b><br>";
-			$formatamount= explode(',',number_format($resttocap/100,2,',','.'));
+			$formatamount= explode(',',number_format($resttocap/100,2,',',''));
 	    $amount_big = $formatamount[0];
         $amount_small = $formatamount[1];
 	         echo tep_draw_form('transaction_form', FILENAME_ORDERS, tep_get_all_get_params(array('action')) . 'action=quickpay_capture');
@@ -170,7 +170,7 @@ if($allowcapture){
 
 	echo "<br><br>";
 		}
-			$formatamount= explode(',',number_format($resttorefund/100,2,',','.'));
+			$formatamount= explode(',',number_format($resttorefund/100,2,',',''));
 	    $amount_big = $formatamount[0];
         $amount_small = $formatamount[1];	
 			if($resttorefund > 0){
@@ -179,7 +179,7 @@ if($allowcapture){
                 echo tep_draw_form('transaction_refundform', FILENAME_ORDERS, tep_get_all_get_params(array('action')) . 'action=quickpay_credit');
                 echo tep_draw_hidden_field('oID', $oID), tep_draw_hidden_field('currency', $ostatus['currency']);
              
-                echo tep_draw_input_field('amount_big', $amount_big, 'size="11" style="text-align:right" ', false, 'text', false);
+                echo tep_draw_input_field('amount_big', str_replace('.','',$amount_big), 'size="11" style="text-align:right" ', false, 'text', false);
                 echo ' , ';
                 echo tep_draw_input_field('amount_small', $amount_small, 'size="3" ', false, 'text', false) . ' ' . $ostatus['currency'] . ' ';
                
@@ -195,7 +195,7 @@ if($allowcapture){
 			}else{
 	
 				
-				        echo tep_draw_input_field('amount_big', $amount_big, 'size="11" style="text-align:right" disabled', false, 'text', false);
+				        echo tep_draw_input_field('amount_big', str_replace('.','',$amount_big), 'size="11" style="text-align:right" disabled', false, 'text', false);
                 echo ' , ';
                 echo tep_draw_input_field('amount_small', $amount_small, 'size="3" disabled', false, 'text', false) . ' ' . $ostatus['currency'] . ' ';
 				 echo ' (' . $statustext[$ostatus['type']].')';
@@ -205,7 +205,7 @@ if($allowcapture){
 			
 			
            
-                echo tep_draw_input_field('amount_big', $amount_big, 'size="11" style="text-align:right" disabled', false, 'text', false);
+                echo tep_draw_input_field('amount_big', str_replace('.','',$amount_big), 'size="11" style="text-align:right" disabled', false, 'text', false);
                 echo ' , ';
                 echo tep_draw_input_field('amount_small', $amount_small, 'size="3" disabled', false, 'text', false) . ' ' . $ostatus['currency'] . ' ';
                 echo tep_image(DIR_WS_IMAGES . 'icon_transaction_capture_grey.gif', IMAGE_TRANSACTION_CAPTURE_INFO);
@@ -231,8 +231,8 @@ if($allowcapture){
     </tr>
         
     <tr>
-        <td class="main"><b><?php echo ENTRY_QUICKPAY_CARDHASH; ?></b></td>
-        <td class="main"><?php echo $order->info['cc_cardhash']; ?></b></td>
+        <td class="main"><b><?php echo "Type"; ?></b></td>
+        <td class="main"><?php echo $statusinfo["type"]." (".$statusinfo["metadata"]["brand"].")"; ?></b></td>
     </tr>
     <?php // if(!$ostatus['type']){?>
        <tr>
