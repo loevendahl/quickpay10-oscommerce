@@ -361,7 +361,14 @@ $icon = (file_exists(DIR_WS_ICONS.$option."_payment.gif") ? DIR_WS_ICONS.$option
         global $cartID, $cart_QuickPay_ID, $customer_id, $languages_id, $order, $order_total_modules;
 $order_id = substr($cart_QuickPay_ID, strpos($cart_QuickPay_ID, '-') + 1);
 //do not create preparing order id before payment confirmation is chosen by customer
-if($_POST['callquickpay'] == "go" && !$order_id) {
+
+$mode = false;
+if(MODULE_PAYMENT_QUICKPAY_ADVANCED_MODE == "Before" || $_POST['callquickpay'] == "go"){
+	
+	$mode = true;
+}
+
+if($mode && !$order_id) {
 
 
   
@@ -569,7 +576,7 @@ if($this->email_footer !='' && $addorder==false){
 		 $qp_autofee = (MODULE_PAYMENT_QUICKPAY_ADVANCED_AUTOFEE == "No" || $qp_cardtypelock == 'viabill' ? "0" : "1");
          $qp_description = "Merchant ".$qp_merchant_id." ".(MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION == "Normal" ? "Authorize" : "Subscription");
 		 $order_id = substr($cart_QuickPay_ID, strpos($cart_QuickPay_ID, '-') + 1);
-         $qp_order_id = $qp_aggreement_id."_".sprintf('%04d', $order_id);
+         $qp_order_id = MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDERPREFIX.sprintf('%04d', $order_id);
 // Calculate the total order amount for the order (the same way as in checkout_process.php)
         $qp_order_amount = 100 * $currencies->calculate($order->info['total'], true, $order->info['currency'], $order->info['currency_value'], '.', '');
         $qp_currency_code = $order->info['currency'];
@@ -796,7 +803,7 @@ if($_POST['callquickpay'] == "go") {
 	
 		
 		global $cart_QuickPay_ID, $order, $currencies;
-        $order_id = substr($cart_QuickPay_ID, strpos($cart_QuickPay_ID, '-') + 1);;
+     //   $order_id = substr($cart_QuickPay_ID, strpos($cart_QuickPay_ID, '-') + 1);;
 
 			$error_desc = MODULE_PAYMENT_QUICKPAY_ADVANCED_ERROR_CANCELLED;
         $error = array('title' => MODULE_PAYMENT_QUICKPAY_ADVANCED_TEXT_ERROR,
@@ -805,7 +812,7 @@ if($_POST['callquickpay'] == "go") {
 
 //avoid order number already used: create a payment link if payment window was aborted
 //for some reason
-if(!$_SESSION["qlink"])	{
+/*if(!$_SESSION["qlink"])	{
   try {
 
 			$apiorder= new QuickpayApi();
@@ -842,8 +849,11 @@ $_SESSION['qlink'] = $storder['url'];
    $error['error'] = $error['error'].' - '.$err;
  
   }
+  
+ 
   }  
-        return $error;
+    */    
+	 return $error;
 	
     }
 
@@ -957,17 +967,20 @@ $_SESSION['qlink'] = $storder['url'];
         }
 		
         tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable quickpay_advanced', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_STATUS', 'False', 'Do you want to accept quickpay payments?', '6', '3', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
-  //      tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Gateway', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_MODE', 'Test gateway', 'Choose Gateway mode:<br><b>Test gateway:</b> Sets gateway in testmode.<br><b>Quickpay:</b> Sets gateway in production mode', '6', '3', 'tep_cfg_select_option(array(\'Quickpay\', \'Test gateway\'), ', now())");
+ 
+      tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Preparing orders mode', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_MODE', 'Normal', 'Choose  mode:<br><b>Normal:</b> Create when payment window is opened.<br><b>Before:</b> Create when confirmation page is opened', '6', '3', 'tep_cfg_select_option(array(\'Normal\', \'Before\'), ', now())");
 
 
         tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'tep_get_zone_class_title', 'tep_cfg_pull_down_zone_classes(', now())");
        
 	    tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Quickpay Merchant Id', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_MERCHANTID', '', 'Enter Merchant id', '6', '6', now())"); 
 		
-		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Quickpay Window user Agreement Id', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID', '', 'Enter Window user Agreement id', '6', '6', now())");
+	tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Quickpay Window user Agreement Id', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID', '', 'Enter Window user Agreement id', '6', '6', now())");
+		
+		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Order number prefix', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDERPREFIX', '000', 'Enter prefix (Ordernumbers Must contain at least 3 characters)<br>Please Note: if upgrading from previous versions of Quickpay 10, use format \"Window Agreement ID_\" ex. 1234_ if \"old\" orders statuses  are to be displayed in your order admin.<br>', '6', '6', now())");
 
 
-		 tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Set Private key for your Quickpay Payment Gateway', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_PRIVATEKEY', '', 'Enter your Private key.', '6', '6', now())");
+	//	 tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Set Private key for your Quickpay Payment Gateway', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_PRIVATEKEY', '', 'Enter your Private key.', '6', '6', now())");
 		 tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('API USER KEY', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_USERAPIKEY', '', 'Used for payments, and for handling transactions from your backend order page.', '6', '6', now())");
 		
 tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Subscription payment', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION', 'Normal', 'Set Subscription payment as default (normal is single payment).', '6', '0', 'tep_cfg_select_option(array(\'Normal\', \'Subscription\'), ',now())");
@@ -1019,7 +1032,7 @@ tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, conf
     }
 
     function keys() {
-        $keys = array('MODULE_PAYMENT_QUICKPAY_ADVANCED_STATUS', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_ZONE', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_SORT_ORDER', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_MERCHANTID', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID','MODULE_PAYMENT_QUICKPAY_ADVANCED_USERAPIKEY','MODULE_PAYMENT_QUICKPAY_ADVANCED_PREPARE_ORDER_STATUS_ID', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDER_STATUS_ID', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_REJECTED_ORDER_STATUS_ID','MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION','MODULE_PAYMENT_QUICKPAY_ADVANCED_AUTOFEE','MODULE_PAYMENT_QUICKPAY_ADVANCED_AUTOCAPTURE','MODULE_PAYMENT_QUICKPAY_ADVANCED_PAII_CAT');
+        $keys = array('MODULE_PAYMENT_QUICKPAY_ADVANCED_STATUS', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_ZONE', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_SORT_ORDER', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_MERCHANTID', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID','MODULE_PAYMENT_QUICKPAY_ADVANCED_USERAPIKEY','MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDERPREFIX','MODULE_PAYMENT_QUICKPAY_ADVANCED_PREPARE_ORDER_STATUS_ID', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDER_STATUS_ID', 'MODULE_PAYMENT_QUICKPAY_ADVANCED_REJECTED_ORDER_STATUS_ID','MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION','MODULE_PAYMENT_QUICKPAY_ADVANCED_AUTOFEE','MODULE_PAYMENT_QUICKPAY_ADVANCED_AUTOCAPTURE','MODULE_PAYMENT_QUICKPAY_ADVANCED_MODE','MODULE_PAYMENT_QUICKPAY_ADVANCED_PAII_CAT');
 		
         for ($i = 1; $i <= $this->num_groups; $i++) {
             $keys[] = 'MODULE_PAYMENT_QUICKPAY_ADVANCED_GROUP' . $i;
@@ -1108,11 +1121,11 @@ private function get_quickpay_order_status($order_id,$mode="") {
 	
 
     // Commit the status request, checking valid transaction id
-    $st = $api->status(MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_".sprintf('%04d', $order_id));
+    $st = $api->status(MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDERPREFIX.sprintf('%04d', $order_id));
 		$eval = array();
 	if($st[0]["id"]){
 
-    $eval["oid"] = str_replace(MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_","", $st[0]["order_id"]);
+    $eval["oid"] = str_replace(MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDERPREFIX,"", $st[0]["order_id"]);
 	$eval["qid"] = $st[0]["id"];
 	}else{
 	$eval["oid"] = null;

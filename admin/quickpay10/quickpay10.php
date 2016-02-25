@@ -152,7 +152,7 @@ function json_message($input){
 			$apistatus->mode = 'payments?order_id=';
 
     // Commit the status request, checking valid transaction id
-	$qporder_id = MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_".sprintf('%04d', $order_id);
+	$qporder_id = MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDERPREFIX.sprintf('%04d', $order_id);
     $st = $apistatus->status($qporder_id);
      if(!$st[0]['id']){
 		 

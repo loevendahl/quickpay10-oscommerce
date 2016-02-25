@@ -19,7 +19,7 @@ if ($api->init()) {
 
 try {
     $api->mode = (MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION == "Normal" ? "payments?order_id=" : "subscriptions?order_id=");
-  $statusinfo = $api->status(MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_".sprintf('%04d', $_GET["oID"])); 
+  $statusinfo = $api->status(MODULE_PAYMENT_QUICKPAY_ADVANCED_ORDERPREFIX.sprintf('%04d', $_GET["oID"])); 
 // $statusinfo = $api->status(get_transactionid($oID)); 
   $ostatus['amount'] = $statusinfo[0]["operations"][0]["amount"];
   $ostatus['balance'] = $statusinfo[0]["balance"];
@@ -30,7 +30,7 @@ try {
   $ostatus['qpstat'] = $operations[0]["qp_status_code"];
   $ostatus['type'] = $operations[0]["type"];
   $resttocap = $ostatus['amount'] - $ostatus['balance'];
-  $resttorefund = $statusinfo["balance"];
+  $resttorefund = $statusinfo[0]["balance"];
   $allowcapture = ($operations[0]["pending"] ? false : true);
   $allowcancel = true;
   $testmode = $statusinfo[0]["test_mode"];
@@ -93,10 +93,10 @@ try {
     <tr>
         <td class="main" valign="top"><b><?php echo ENTRY_QUICKPAY_TRANSACTION; ?></b></td>
         <td class="main" ><?php
-if ($statusinfo[0]["id"] && $api->mode == "subscriptions/" && !$error) {
+if ($ostatus['qpstat'] == 20000 && $api->mode == "subscriptions/" && !$error) {
 	echo SUBSCRIPTION_ADMIN;
 }
-    if ($statusinfo[0]["id"] && $api->mode == "payments/") {
+    if ($ostatus['qpstat'] == 20000 && $api->mode == "payments/") {
         $statustext = array();
         $statustext["capture"] = INFO_QUICKPAY_CAPTURED;
         $statustext["cancel"] = INFO_QUICKPAY_REVERSED;

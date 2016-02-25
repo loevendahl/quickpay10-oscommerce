@@ -2,7 +2,7 @@
 require('includes/application_top.php');
 include(DIR_FS_CATALOG.DIR_WS_CLASSES.'QuickpayApi.php');
 
-$oid = MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_".sprintf('%04d', $_GET["oid"]);
+$oid = MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID.sprintf('%04d', $_GET["oid"]);
 	
 		$qp = new QuickpayApi;
 
