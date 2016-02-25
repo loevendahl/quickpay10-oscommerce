@@ -107,7 +107,7 @@ class QuickpayApi {
 function log_operations($operations, $currency = ""){
 	$str="<ul>";
 foreach($operations as $op){
-	$str .= "<li><b>".$op["type"]."</b> - ".number_format($op["amount"]/100,2,',','')." ".$currency.", <b>Quickpay info</b>: ".$op["qp_status_msg"].", <b>Aquirer info</b>: ".$op["aq_status_msg"].", <b>Log</b>: ".$op["created_at"]."</li>";
+	$str .= "<li><b>".$op["type"]."</b> - ".number_format($op["amount"]/100,2,',','')." ".$currency.", <b>Quickpay info</b>: ".$op["qp_status_msg"].", <b>Aquirer info</b>: ".$op["aq_status_msg"].", <b>Log</b>: ".$op["created_at"].($op["fraud"]? ", <b>Fraud</b>: ".json_encode($op["fraud_remarks"]) : "")."</li>";
 	
 }
 	$str .= "<ul>";
